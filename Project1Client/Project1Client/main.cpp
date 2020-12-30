@@ -11,7 +11,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <WinSock2.h>
-#include <WS2tcpip.h>
 
 
 #ifdef _DEBUG 
@@ -62,7 +61,7 @@ int main()
 		std::cout << "Client connected" << std::endl;
 	}
 
-	Game game;
+	Game game(connection);
 	game.run();
 
 	return 1;

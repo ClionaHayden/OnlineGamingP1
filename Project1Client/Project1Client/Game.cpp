@@ -2,8 +2,12 @@
 #include <iostream>
 
 
-Game::Game() :
-	m_window(sf::VideoMode{ 600, 600 }, "Tag")
+Game::Game(SOCKET& soc) :
+	m_window(sf::VideoMode{ 600, 600 }, "Tag"),
+	m_connection(soc),
+	m_player(Vector2f(10.0f,10.0f),10,Color::Red),
+	m_p2(Vector2f(30.0f, 10.0f), 10, Color::Green),
+	m_p3(Vector2f(50.0f, 10.0f), 10, Color::Blue)
 {
 
 }
@@ -46,17 +50,26 @@ void Game::processEvents()
 		{
 			m_window.close();
 		}
-		
+		m_player.handleInput(event);
 	}
 }
 
 void Game::update(sf::Time t_deltaTime)
 {
-	
+	m_player.updatePos(t_deltaTime);
+	m_p2.update(t_deltaTime);
+	m_p3.update(t_deltaTime);
 }
 
 void Game::render()
 {
 	m_window.clear(sf::Color::Black);
+	m_player.draw(m_window);
+	m_p2.render(m_window);
+	m_p3.render(m_window);
 	m_window.display();
+}
+
+void Game::sendData()
+{
 }
