@@ -36,6 +36,58 @@
 /// main enrtry point
 /// </summary>
 /// <returns>zero</returns>
+ 
+SOCKET connections[3];
+int connectionCounter = 0;
+
+enum PType
+{
+	P_ChatMsg
+};
+
+bool ProcessPacket(int ID, PType t_packetType)
+{
+	switch (t_packetType)
+	{
+	case P_ChatMsg:
+	{
+		int bufferLen;
+		recv(connections[ID], (char*)&bufferLen, sizeof(bufferLen), NULL);
+		char* buffer = new char[bufferLen];
+		recv(connections[ID], buffer, bufferLen, NULL);
+		for (int i = 0; i < connectionCounter; i++)
+		{
+			if (i = ID)
+				continue;
+			PType chatPacket = P_ChatMsg;
+			send(connections[i], (char*)&chatPacket, sizeof(PType), NULL);
+			send(connections[i], (char*)&bufferLen, sizeof(bufferLen), NULL);
+			send(connections[i], buffer, bufferLen, NULL);
+		}
+		delete[] buffer;
+		break;
+	}
+	default:
+		std::cout << "Unregognised packet" << t_packetType << std::endl;
+		break;
+	}
+	return true;
+}
+
+void ClientHandlerThread(int ID)
+{
+	PType packetType;
+	while (true)
+	{
+		recv(connections[ID], (char*)&packetType, sizeof(PType), NULL);
+		if (!ProcessPacket(ID, packetType))
+		{
+			break;
+		}
+	}
+	closesocket(connections[ID]);
+}
+
 int main()
 {
 	WSAData wsaData;
@@ -57,16 +109,27 @@ int main()
 	listen(sListen, SOMAXCONN);
 
 	SOCKET newConnection;
-	newConnection = accept(sListen, (SOCKADDR*)&addr, &addrlen);
-	if (newConnection == 0)
+	for (int i = 0; i < 3; i++)
 	{
-		std::cout << "Failed to accept client connection" << std::endl;
+		newConnection = accept(sListen, (SOCKADDR*)&addr, &addrlen);
+		if (newConnection == 0)
+		{
+			std::cout << "Failed to accept client connection" << std::endl;
+		}
+		else
+		{
+			std::cout << "Client connected" << std::endl;
+			connections[i] = newConnection;
+			connectionCounter++;
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandlerThread, (LPVOID)(i), NULL, NULL);
+			PType chatPacket = P_ChatMsg;
+			send(connections[i], (char*)&chatPacket, sizeof(PType), NULL);
+			std::string msg = "send";
+			int msgLen = msg.size();
+			send(newConnection, (char*)&msgLen, sizeof(int32_t), NULL);
+			send(newConnection, msg.c_str(), msgLen, NULL);
+		}
 	}
-	else
-	{
-		std::cout << "Client connected" << std::endl;
-	}
-
 	Game game;
 	game.run();
 

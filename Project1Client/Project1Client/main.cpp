@@ -35,6 +35,49 @@
 /// main enrtry point
 /// </summary>
 /// <returns>zero</returns>
+
+SOCKET connection;
+enum PType
+{
+	P_ChatMsg
+};
+
+bool ProcessPacket(PType t_packetType)
+{
+	switch (t_packetType)
+	{
+	case P_ChatMsg:
+	{
+		int bufferLen;
+		recv(connection, (char*)&bufferLen, sizeof(bufferLen), NULL);
+		char* buffer = new char[bufferLen + 1];
+		buffer[bufferLen] = '\0';
+		recv(connection, buffer, bufferLen, NULL);
+		std::cout << buffer << std::endl;
+		delete[] buffer;
+		break;
+	}
+	default:
+		std::cout << "Unregognised packet" << t_packetType << std::endl;
+		break;
+	}
+	return true;
+}
+
+void ClientHandlerThread()
+{
+	PType packetType;
+	while (true)
+	{
+		recv(connection, (char*)&packetType, sizeof(PType), NULL);
+		if (!ProcessPacket(packetType))
+		{
+			break;
+		}
+	}
+	closesocket(connection);
+}
+ 
 int main()
 {
 	WSAData wsaData;
@@ -51,7 +94,7 @@ int main()
 	addr.sin_port = htons(1111);
 	addr.sin_family = AF_INET;
 
-	SOCKET connection = socket(AF_INET, SOCK_STREAM, NULL);
+	connection = socket(AF_INET, SOCK_STREAM, NULL);
 	if (connect(connection, (SOCKADDR*)&addr, addrlen) != 0)
 	{
 		std::cout << "Failed to accept client connection" << std::endl;
@@ -60,6 +103,19 @@ int main()
 	{
 		std::cout << "Client connected" << std::endl;
 	}
+	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandlerThread, NULL, NULL, NULL);
+	
+	while (true)
+	{
+		std::string msg = "send back";
+		int bln = msg.size();
+		PType packetType = P_ChatMsg;
+		send(connection, (char*)&packetType, sizeof(PType), NULL);
+		send(connection, (char*)&bln, sizeof(int), NULL);
+		send(connection, msg.c_str(), bln, NULL);
+		Sleep(10);
+	}
+
 
 	Game game(connection);
 	game.run();
