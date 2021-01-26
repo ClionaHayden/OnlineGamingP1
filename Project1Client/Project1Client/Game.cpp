@@ -2,14 +2,14 @@
 #include <iostream>
 
 
-Game::Game(SOCKET& soc) :
+Game::Game() :
 	m_window(sf::VideoMode{ 600, 600 }, "Tag"),
-	m_connection(soc),
 	m_player(Vector2f(10.0f,10.0f),10,Color::Red),
 	m_p2(Vector2f(30.0f, 10.0f), 10, Color::Green),
-	m_p3(Vector2f(50.0f, 10.0f), 10, Color::Blue)
+	m_p3(Vector2f(50.0f, 10.0f), 10, Color::Blue),
+	myClient("127.0.0.1", 1111)
 {
-
+	setupClient();
 }
 
 void Game::run()
@@ -59,6 +59,10 @@ void Game::update(sf::Time t_deltaTime)
 	m_player.updatePos(t_deltaTime);
 	m_p2.update(t_deltaTime);
 	m_p3.update(t_deltaTime);
+
+	string msg = "Hello";
+	myClient.sendString(msg);
+	Sleep(10);
 }
 
 void Game::render()
@@ -68,6 +72,14 @@ void Game::render()
 	m_p2.render(m_window);
 	m_p3.render(m_window);
 	m_window.display();
+}
+
+void Game::setupClient()
+{
+	if (!myClient.Connect())
+	{
+		cout << "Failed to connect to server" << endl;
+	}
 }
 
 void Game::sendData()

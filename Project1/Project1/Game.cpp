@@ -3,9 +3,10 @@
 
 
 Game::Game() :
-	m_window(sf::VideoMode{ 600, 600 }, "Tag")
+	m_window(sf::VideoMode{ 600, 600 }, "Tag"),
+	m_server(1111)
 {
-
+	m_server.ListenForNewConnection();
 }
 
 void Game::run()

@@ -3,6 +3,7 @@
 #define GAME
 
 #include <SFML/Graphics.hpp>
+#include "Server.h"
 
 class Game
 {
@@ -19,6 +20,8 @@ private:
 
 private:
 	sf::RenderWindow m_window;
+
+	Server m_server;
 };
 
 #endif // !GAME

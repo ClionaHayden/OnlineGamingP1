@@ -5,13 +5,13 @@
 #include <SFML/Graphics.hpp>
 #include <WinSock2.h>
 
+#include "Client.h"
 #include "Player.h"
 
 class Game
 {
 public:
-	Game(SOCKET& soc);
-	Game() = default;
+	Game();
 	void run();
 
 private:
@@ -20,14 +20,17 @@ private:
 	void processEvents();
 	void update(sf::Time);
 	void render();
+	void setupClient();
 	void sendData();
 
 private:
 	sf::RenderWindow m_window;
-	SOCKET m_connection;
 	Player m_player;
 	Entity m_p2;
 	Entity m_p3;
+
+
+	Client myClient;
 };
 
 #endif // !GAME
