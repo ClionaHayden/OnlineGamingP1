@@ -1,7 +1,7 @@
 #include "Player.h"
 
 Player::Player(Vector2f t_pos, float t_radius, Color t_color) :
-	Entity(t_pos,t_radius,t_color)
+	Entity(t_pos, t_radius, t_color)
 {
 }
 
@@ -34,10 +34,9 @@ void Player::draw(RenderWindow& t_win)
 	render(t_win);
 }
 
-sf::Vector2f Player::updatePos(sf::Time t_deltaTime)
+void Player::updatePos(sf::Time t_deltaTime)
 {
 	update(t_deltaTime);
-	return getPos();
 }
 
 void Player::setColour(Color t_col)

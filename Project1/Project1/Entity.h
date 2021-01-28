@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #define NOMINMAX
 #include <SFML/Graphics.hpp>
 
@@ -20,7 +21,7 @@ public:
 
 	void setPos(Vector2f t_pos) { m_pos = t_pos; };
 
-	void render(RenderWindow& t_win);
+	void render(RenderWindow & t_win);
 	sf::Vector2f update(sf::Time t_deltaTime);
 	int m_ID;
 	Vector2f m_pos;
